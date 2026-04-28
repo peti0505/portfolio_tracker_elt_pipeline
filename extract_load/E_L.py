@@ -19,7 +19,7 @@ def get_conf() -> dict:
         ),
         "project": os.environ.get("project_id"),
         "dataset": os.environ.get("dataset_name"),
-        "table": os.environ.get("dataset_name") + "." + "raw_transactions",
+        "transactions_table": os.environ.get("dataset_name") + "." + "raw_transactions",
     }
 
     return conf
@@ -37,13 +37,13 @@ def googlesheet_to_gbq(conf: dict) -> None:
 
     pandas_gbq.to_gbq(
         df_transactions,
-        conf["table"],
+        conf["transactions_table"],
         project_id=conf["project"],
         if_exists="append",
         credentials=conf["credentials"],
     )
 
-    worksheet.batch_clear(["A2:D1000"])
+    worksheet.batch_clear(["A2:E1000"])
 
 
 def gbq_get_tickers(conf: dict) -> list:
@@ -53,10 +53,10 @@ def gbq_get_tickers(conf: dict) -> list:
     (
     SELECT
     Ticker,
-    sum(Amount) as Current_total
-    FROM {conf['table']}
+    sum(`Amount + for buy - for sell`) as Current_total
+    FROM {conf["transactions_table"]}
     GROUP BY 1
-    HAVING sum(Amount) > 0
+    HAVING sum(`Amount + for buy - for sell`) > 0
     )
     SELECT
     Ticker
@@ -68,9 +68,38 @@ def gbq_get_tickers(conf: dict) -> list:
         sql, project_id=conf["project"], credentials=conf["credentials"]
     )
 
-    df_tickers = df_tickers["Ticker"].to_list()
+    tickers = df_tickers["Ticker"].to_list()
 
-    return df_tickers
+    return tickers
+
+
+def gbq_get_currencies(conf: dict) -> list:
+
+    sql = f"""
+    WITH ticker_total AS
+    (
+    SELECT
+    Ticker,
+    `Currency code`,
+    sum(`Amount + for buy - for sell`) as Current_total
+    FROM {conf["transactions_table"]}
+    GROUP BY 1, 2
+    HAVING sum(`Amount + for buy - for sell`) > 0
+    )
+    SELECT DISTINCT
+    `Currency code`
+    FROM
+    ticker_total
+    WHERE `Currency code` != 'EUR'
+    """
+
+    df_currencies = pandas_gbq.read_gbq(
+        sql, project_id=conf["project"], credentials=conf["credentials"]
+    )
+
+    currencies = df_currencies["Currency code"].to_list()
+
+    return currencies
 
 
 def api_get_asset_price(asset_tickers: list, conf: dict) -> pd.DataFrame:
@@ -88,7 +117,7 @@ def api_get_asset_price(asset_tickers: list, conf: dict) -> pd.DataFrame:
         )
 
         r = response.json()
-        price = {"dates": r[0]["date"], "tickers": ticker, "price": r[0]["close"]}
+        price = {"dates": r[0]["date"], "tickers": ticker, "price": r[0]["adjClose"]}
         price_list.append(price)
 
     df_prices = pd.DataFrame(price_list)
@@ -96,7 +125,64 @@ def api_get_asset_price(asset_tickers: list, conf: dict) -> pd.DataFrame:
     return df_prices
 
 
-if __name__ == "__main__":
+def api_get_currency_rate(currency_list: list) -> pd.DataFrame:
+
+    currency_list = ",".join(currency_list)
+
+    response = requests.get(
+        f"https://api.frankfurter.dev/v2/rates?quotes={currency_list}"
+    )
+    r = response.json()
+
+    currencies = []
+    for i in r:
+        currencies_row = {
+            "dates": i["date"],
+            "currency_code": i["quote"],
+            "rate": i["rate"],
+        }
+        currencies.append(currencies_row)
+
+    df_currencies = pd.DataFrame(currencies)
+
+    return df_currencies
+
+
+def asset_prices_to_gbq(prices: pd.DataFrame, conf: dict) -> None:
+
+    table = conf["dataset"] + "." + "raw_asset_prices"
+    pandas_gbq.to_gbq(
+        prices,
+        table,
+        project_id=conf["project"],
+        if_exists="append",
+        credentials=conf["credentials"],
+    )
+
+
+def currency_rates_to_gbq(currencies: pd.DataFrame, conf: dict) -> None:
+
+    table = conf["dataset"] + "." + "raw_currency_exchange_price"
+    pandas_gbq.to_gbq(
+        currencies,
+        table,
+        project_id=conf["project"],
+        if_exists="append",
+        credentials=conf["credentials"],
+    )
+
+
+def main() -> None:
+
     conf = get_conf()
+    googlesheet_to_gbq(conf)
     tickers = gbq_get_tickers(conf)
-    print(api_get_asset_price(tickers, conf))
+    currencies = gbq_get_currencies(conf)
+    asset_prices = api_get_asset_price(tickers, conf)
+    currency_rates = api_get_currency_rate(currencies)
+    asset_prices_to_gbq(asset_prices, conf)
+    currency_rates_to_gbq(currency_rates, conf)
+
+
+if __name__ == "__main__":
+    main()
