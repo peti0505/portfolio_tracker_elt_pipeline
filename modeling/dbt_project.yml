@@ -1,0 +1,24 @@
+name: 'modeling'
+version: '1.0.0'
+config-version: 2
+
+profile: investment-portfolio-tracker
+
+seed-paths: ["seeds"]
+model-paths: ["models"]
+macro-paths: ["macros"]
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+seeds:
+  modeling:
+    +schema: raw
+
+models:
+  modeling:
+    +static_analysis: strict
+    staging:
+      +materialized: view
+    marts:
+      +materialized: table 

@@ -1,0 +1,50 @@
+version: 2 
+
+sources:
+  - name: portfolio
+    database: investment-portfolio-tracker-1
+    schema: dev
+    tables:
+    - name: raw_asset_prices
+      columns:
+      - name: dates
+        data_tests:
+        - not_null
+      - name: tickers
+        data_tests:
+        - not_null
+      - name: price
+        data_tests:
+        - not_null
+    - name: raw_currency_exchange_price
+      columns:
+      - name: dates
+        data_tests:
+        - not_null
+      - name: currency_code
+        data_tests:
+        - not_null
+      - name: rate
+        data_tests:
+        - not_null          
+    - name: raw_transactions
+      columns:
+      - name: Date YYYY-MM-DD
+        quote: true
+        data_tests:
+        - not_null
+      - name: Ticker
+        data_tests:
+        - not_null
+      - name: Trade price use dot for decimal
+        quote: true
+        data_tests:
+        - not_null
+      - name: Currency code
+        quote: true
+        data_tests:
+        - not_null
+      - name: Amount + for buy - for sell
+        quote: true
+        data_tests:
+        - not_null
