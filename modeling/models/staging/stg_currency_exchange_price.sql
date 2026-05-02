@@ -1,6 +1,6 @@
 WITH staging AS 
 (
-SELECT
+SELECT DISTINCT
     CAST(dates AS DATE) AS date, 
     UPPER(currency_code) AS currency_code,
     rate
