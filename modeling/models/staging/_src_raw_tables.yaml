@@ -5,6 +5,7 @@ sources:
     database: investment-portfolio-tracker-1
     schema: dev
     tables:
+
     - name: raw_asset_prices
       columns:
       - name: dates
@@ -16,6 +17,7 @@ sources:
       - name: price
         data_tests:
         - not_null
+
     - name: raw_currency_exchange_price
       columns:
       - name: dates
@@ -27,6 +29,7 @@ sources:
       - name: rate
         data_tests:
         - not_null          
+
     - name: raw_transactions
       columns:
       - name: Date YYYY-MM-DD
@@ -48,6 +51,7 @@ sources:
         quote: true
         data_tests:
         - not_null
+        
     - name: raw_asset_metadatas
       columns:
       - name: tickers
