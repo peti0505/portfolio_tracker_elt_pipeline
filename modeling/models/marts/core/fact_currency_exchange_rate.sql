@@ -52,6 +52,7 @@ final AS
 (
     SELECT
         GENERATE_UUID() AS currency_rate_id,
+        date_id,
         currency_code,
         currency_rate
     FROM final_rates
