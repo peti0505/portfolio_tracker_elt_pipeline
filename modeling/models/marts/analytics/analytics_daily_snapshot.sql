@@ -4,7 +4,6 @@ WITH daily_asset_prices AS
         date_id,
         ticker_id,
         asset_price,
-        LAG(asset_price) OVER(PARTITION BY ticker_id ORDER BY date_id) as day_before_asset
     FROM 
         {{ref('fact_asset_prices')}}
 ),
@@ -15,7 +14,6 @@ currencies AS
         date_id,
         currency_code,
         currency_rate,
-        LAG(currency_rate) OVER(PARTITION BY currency_code ORDER BY date_id) as day_before_currency
     FROM
         {{ref('fact_currency_exchange_rate')}}
 ),
@@ -43,7 +41,6 @@ ticker_datas AS
         ticker_id,
         currency_code,
         asset_price,
-        day_before_asset,
         COALESCE(daily_amount, 0) AS daily_amount,
         COALESCE(daily_cost, 0) AS daily_cost,
         COALESCE(daily_cost_base, 0) AS daily_cost_base
@@ -53,15 +50,11 @@ ticker_datas AS
         LEFT JOIN transactions USING(date_id, ticker_id)
 ),
 
-final_currency_rates AS
+final AS
 (
     SELECT
         date_id,
         ticker_id,
-        asset_price,
-        currency_rate,
-        day_before_asset,
-        day_before_currency,
         SUM(daily_amount) OVER(PARTITION BY ticker_id ORDER BY date_id) AS cumulative_amount,
         COALESCE((SUM(daily_amount) OVER(PARTITION BY ticker_id ORDER BY date_id))*asset_price, 0) AS market_value,
         COALESCE((SUM(daily_amount) OVER(PARTITION BY ticker_id ORDER BY date_id))*asset_price/currency_rate, 0) AS market_value_base,
@@ -74,4 +67,4 @@ final_currency_rates AS
 )
 
 
-SELECT * FROM final_currency_rates
+SELECT * FROM final
