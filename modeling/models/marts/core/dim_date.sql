@@ -1,4 +1,4 @@
-WITH alldate AS
+WITH date_spine AS
 (
     {{
         dbt_utils.date_spine(
@@ -9,25 +9,43 @@ WITH alldate AS
     }}
 ),
 
+alldates AS
+(
+    SELECT
+        min(date) as partial_min
+    FROM
+        {{ref('stg_transactions')}}
+    UNION ALL
+    SELECT
+        min(date) as partial_min
+    FROM
+        {{ref('stg_asset_prices')}}
+    UNION ALL
+    SELECT
+        min(date) as partial_min
+    FROM
+        {{ref('stg_currency_exchange_rate')}}
+),
+
 date_limits AS
 (
     SELECT
-        MIN(date) AS min_date,
+        MIN(partial_min) AS min_date,
         current_date() as max_date
     FROM 
-        {{ref('stg_transactions')}}
+        alldates
 ),
 
 limited_dates AS
 (
     SELECT
-        CAST(ad.date_day AS DATE) AS date
+        CAST(ds.date_day AS DATE) AS date
     FROM
-        alldate AS ad
-        CROSS JOIN date_limits AS dl
+        date_spine AS ds
+        CROSS JOIN date_limits
     WHERE
-        ad.date_day >= min_date
-        AND ad.date_day <= max_date
+        ds.date_day >= min_date
+        AND ds.date_day <= max_date
 ),
 
 final AS

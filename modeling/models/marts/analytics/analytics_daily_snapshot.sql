@@ -27,7 +27,7 @@ transactions AS
         ticker_id,
         SUM(amount) as daily_amount,
         SUM(trade_price*amount) AS daily_cost,
-        SUM(trade_price*amount*currency_rate) AS daily_cost_base
+        SUM(trade_price*amount/currency_rate) AS daily_cost_base
     FROM
         {{ref('fact_transactions')}} as tr
         JOIN {{ref('dim_assets')}} USING (ticker_id)
@@ -63,8 +63,8 @@ final_currency_rates AS
         day_before_asset,
         day_before_currency,
         SUM(daily_amount) OVER(PARTITION BY ticker_id ORDER BY date_id) AS cumulative_amount,
-        (SUM(daily_amount) OVER(PARTITION BY ticker_id ORDER BY date_id))*asset_price AS market_value,
-        (SUM(daily_amount) OVER(PARTITION BY ticker_id ORDER BY date_id))*asset_price*currency_rate AS market_value_base,
+        COALESCE((SUM(daily_amount) OVER(PARTITION BY ticker_id ORDER BY date_id))*asset_price, 0) AS market_value,
+        COALESCE((SUM(daily_amount) OVER(PARTITION BY ticker_id ORDER BY date_id))*asset_price/currency_rate, 0) AS market_value_base,
         SUM(daily_cost) OVER(PARTITION BY ticker_id ORDER BY date_id) AS cumulative_cost,
         SUM(daily_cost_base) OVER(PARTITION BY ticker_id ORDER BY date_id) AS cumulative_cost_base
     FROM
