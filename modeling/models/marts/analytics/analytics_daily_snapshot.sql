@@ -41,9 +41,6 @@ ticker_datas AS
     SELECT
         date_id,
         ticker_id,
-        ticker,
-        asset_name,
-        exchange_code,
         currency_code,
         asset_price,
         day_before_asset,
@@ -60,10 +57,7 @@ final_currency_rates AS
 (
     SELECT
         date_id,
-        ticker,
-        asset_name,
-        exchange_code,
-        currency_code,
+        ticker_id,
         asset_price,
         currency_rate,
         day_before_asset,
