@@ -50,7 +50,7 @@ ticker_datas AS
         LEFT JOIN transactions USING(date_id, ticker_id)
 ),
 
-final AS
+rolling_totals AS
 (
     SELECT
         date_id,
@@ -64,6 +64,21 @@ final AS
         ticker_datas
         JOIN currencies
         USING (date_id, currency_code)
+),
+
+final AS
+(
+    SELECT
+        date_id,
+        ticker_id,
+        cumulative_amount,
+        market_value,
+        market_value_base,
+        cumulative_cost,
+        cumulative_cost_base,
+        COALESCE(market_value*SAFE_DIVIDE(cumulative_cost_base,cumulative_cost),0) AS market_value_on_cost_currency,
+    FROM
+        rolling_totals
 )
 
 
