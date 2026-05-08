@@ -1,11 +1,14 @@
 models:
   - name: fact_transactions
+    description: Fact table for transactions. Contains a transaction id, date id, ticker id, trade price and amount. One row contains one transaction.
     columns:
     - name: transaction_id
+      description: Primary key, consists of UUIDs.
       data_tests:
       - not_null
       - unique
     - name: date_id
+      description: A foreign key for the date dimension table's date id.
       data_tests:
       - not_null
       - relationships:
@@ -13,6 +16,7 @@ models:
             to: ref('dim_date')
             field: date_id
     - name: ticker_id
+      description: A foreign key for the assets dimension table's ticker id. 
       data_tests:
       - not_null
       - relationships:
@@ -20,19 +24,24 @@ models:
             to: ref('dim_assets')
             field: ticker_id
     - name: trade_price
+      description: The price the transaction of an asset was made on.
       data_tests:
       - not_null
     - name: amount
+      description: The amount of the asset that was bought/sold. Positive number for buying negative for selling.
       data_tests:
       - not_null
 
   - name: fact_currency_exchange_rate
+    description: Fact table for the currency rates on EUR base. Contains a currency rate id, date id, currency code and currency rate. One row contains one rate for a specific date on a specific currency.
     columns:
     - name: currency_rate_id
+      description: Primary key, consists of UUIDs.
       data_tests:
       - not_null
       - unique
     - name: date_id
+      description: A foreign key for the date dimension table's date id.
       data_tests:
       - not_null
       - relationships:
@@ -40,6 +49,7 @@ models:
             to: ref('dim_date')
             field: date_id
     - name: currency_code
+      description: A foreign key for the assets dimension table's currency code.
       data_tests:
       - not_null
       - relationships:
@@ -47,14 +57,18 @@ models:
             to: ref('dim_assets')
             field: currency_code
     - name: currency_rate
+      description: A currency's exchange rate on the EUR base for a specific date for a specific currency.
 
   - name: fact_asset_prices
+    description: Fact table for asset prices. Contains an asset price id, date id, ticker id and asset price. One row contains one price for a specific date on a specific ticker.
     columns:
     - name: asset_price_id
+      description: Primary key, consists of UUIDs.
       data_tests:
       - not_null
       - unique
     - name: date_id
+      description: A foreign key for the date dimension table's date id.
       data_tests:
       - not_null
       - relationships:
@@ -62,6 +76,7 @@ models:
             to: ref('dim_date')
             field: date_id
     - name: ticker_id
+      description: A foreign key for the assets dimension table's ticker id.
       data_tests:
       - not_null
       - relationships:
@@ -69,49 +84,64 @@ models:
             to: ref('dim_assets')
             field: ticker_id
     - name: asset_price
+      description: The price on a specific date for a specific ticker.
 
   - name: dim_assets
+    description: Dimension table for assets. Contains a ticker id, a ticker, an asset name, an exchange code and a currency code. One row contains one asset and its information. 
     columns:
     - name: ticker_id
+      description: Primary key, consists of surrogate integer keys.
       data_tests:
       - not_null
       - unique
     - name: ticker
+      description: The ticker of the asset, it is not unique, two assets can have the same ticker on different exchanges.
       data_tests:
       - not_null
     - name: asset_name
+      description: The full name of the asset.
       data_tests:
       - not_null
     - name: exchange_code
+      description: The code of the exchange the asset is traded on.
       data_tests:
       - not_null
     - name: currency_code
+      description: The code of the currency the asset is traded in.
       data_tests:
       - not_null
     
   - name: dim_date
+    description: Dimension table for dates. Contains a date id, a date, a date year, a date month, a date month's name, a date day and a date day's weekday name. One row contains one day.
     columns:
     - name: date_id
+      description: Primary key.
       data_tests:
       - not_null
       - unique
     - name: date
+      description: The full date of the day.
       data_tests:
       - not_null
       - unique
     - name: date_year
+      description: The calendar year of the date..
       data_tests:
       - not_null
     - name: date_month
+      description: The calendar month of the date.
       data_tests:
       - not_null
     - name: date_month_name
+      description: The calendar month name of the date.
       data_tests:
       - not_null
     - name: date_day
+      description: The calendar day of the date.
       data_tests:
       - not_null
     - name: date_weekday
+      description: The calendar day weekday.
       data_tests:
       - not_null
 

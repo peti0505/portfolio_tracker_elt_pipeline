@@ -4,64 +4,83 @@ sources:
   - name: portfolio
     database: investment-portfolio-tracker-1
     schema: dev
+    description: Data for the investment portfolio.
     tables:
 
     - name: raw_asset_prices
+      description: The prices of assets. Contains dates, tickers and price. One row contains one price for one specific ticker on a specific date.
       columns:
       - name: dates
+        description: The date of the price.
         data_tests:
         - not_null
       - name: tickers
+        description: The ticker the price is for.
         data_tests:
         - not_null
       - name: price
+        description: The price of the asset on a specific date.
         data_tests:
         - not_null
 
     - name: raw_currency_exchange_price
+      description: The rates for the currencies on EUR base. Contains date, currency code and rate.
       columns:
       - name: dates
+        description: The date of the currency rate.
         data_tests:
         - not_null
       - name: currency_code
+        description: The currency code of the currency the rate is for.
         data_tests:
         - not_null
       - name: rate
+        description: The rate of the currency on a specific date.
         data_tests:
         - not_null          
 
     - name: raw_transactions
+      description: The transactions for the portfolio. contains a date, ticker, trade price, currency code and amount. One transaction per row.
       columns:
       - name: Date YYYY-MM-DD
+        description: The date for a transaction it was made on.
         quote: true
         data_tests:
         - not_null
       - name: Ticker
+        description: The ticker the transaction was made on. 
         data_tests:
         - not_null
       - name: Trade price use dot for decimal
+        description: The price the ticker was traded for.
         quote: true
         data_tests:
         - not_null
       - name: Currency code
+        description: The currency the trade was made on.
         quote: true
         data_tests:
         - not_null
       - name: Amount + for buy - for sell
+        description: The amount of the asset that was bought/sold. Positive number for buying negative for selling.
         quote: true
         data_tests:
         - not_null
         
     - name: raw_asset_metadatas
+      description: Contains the ticker, the name of the asset and the exchange code. One ticker and its data per row.
       columns:
       - name: tickers
+        description: The ticker for the data.
         data_tests:
         - unique
         - not_null
       - name: asset_name
+        description: The full name of the asset.
         data_tests:
         - unique
         - not_null
       - name: exchange_code
+        description: The code of the exchange it is traded on.
         data_tests:
         - not_null

@@ -1,56 +1,74 @@
 models:
   - name: stg_asset_metadatas
+    description: Contains the ticker, the name of the asset and the exchange code. Basic cleaning applied, one ticker per row.
     columns:
     - name: ticker
+      description: Primary key for the assets.
       data_tests:
-      - not_null,
+      - not_null
       - unique
     - name: asset_name
+      description: The full name of the traded asset.
       data_tests:
-      - not_null,
+      - not_null
       - unique
     - name: exchange_code
+      description: The code of the exchange where the asset is traded on.
       data_tests:
       - not_null
 
   - name:  stg_asset_prices
+    description: Contains the date, the ticker and the price for it on that date. Basic cleaning applied, one row equals a price for a ticker on a specific date.
     columns:
     - name: date
+      description: The date for the price. One part of the composite key. 
       data_tests:
       - not_null
     - name: ticker
+      description: The ticker the price is for. The other part for the composite key.
       data_tests:
       - not_null
     - name: price
+      description: The price for the asset on a specific date.
       data_tests:
       - not_null
   
   - name: stg_currency_exchange_rate
+    description: Contains the date, the currency code and the rate for it on that date. Basic cleaning applied, one row equals a rate for a currency on a specific date.
     columns:
     - name: date
+      description: The date for the currency rate. One part of the composite key. 
       data_tests:
       - not_null
     - name: currency_code
+      description: The currency code the rate is for. The other part for the composite key.
       data_tests:
       - not_null
     - name: rate
+      description: The rate for the currency on a specific date, with EUR base.
       data_tests:
       - not_null
     
   - name: stg_transactions
+    description: Contains the date, the ticker, the trade price, the currency code and the amount for a transactions. Basic cleaning applied, one row per transaction.
     columns:
     - name: date
+      description: The date for a transaction it was made on.
       data_tests:
       - not_null
     - name: ticker
+      description: The ticker the transaction was made on. 
       data_tests:
       - not_null
     - name: trade_price
+      description: The price the ticker was traded for.
       data_tests:
       - not_null
     - name: currency_code
+      description: The currency the trade was made on.
       data_tests:
       - not_null
     - name: amount
+      description: The amount of the asset that was bought/sold. Positive number for buying negative for selling.
       data_tests:
       - not_null

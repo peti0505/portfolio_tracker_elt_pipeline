@@ -1,0 +1,36 @@
+models:
+  - name: analytics_daily_snapshot
+    description: The daily snapshot of each asset. Each row contains one assets data for one specific day.
+    columns:
+    - name: date_id 
+      description: A foreign key for the date dimension table's date id.
+      data_tests:
+      - not_null
+    - name: ticker_id
+      description: A foreign key for the assets dimension table's ticker id.
+      data_tests:
+      - not_null
+    - name: cumulative_amount
+      description: The amount of that asset owned on that date.
+      data_tests:
+      - not_null
+    - name: market_value
+      description: The market value of that asset on that date.
+      data_tests:
+      - not_null
+    - name: market_value_base
+      description: The market value of that asset on that date in EUR.
+      data_tests:
+      - not_null
+    - name: cumulative_cost
+      description: The amount of money that was spent on that asset cumulatively.
+      data_tests:
+      - not_null
+    - name: cumulative_cost_base
+      description: The amount of money that was spent on that asset cumulatively in EUR.
+      data_tests:
+      - not_null
+    - name: market_value_on_cost_currency
+      description: The market value on the currency rate of the time of asset acquisition
+      data_tests:
+      - not_null
