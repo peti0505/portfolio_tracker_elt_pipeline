@@ -18,6 +18,12 @@ logger.addHandler(file)
 
 
 def get_conf() -> dict:
+    """
+    Fetch the variables from .env file.
+
+    Returns:
+        dict: Containing the api token, GBQ project IDs and credentials doc.
+    """
 
     try:
         load_dotenv()
@@ -47,6 +53,15 @@ def get_conf() -> dict:
 
 
 def get_googlesheet_transactions(conf: dict) -> pd.DataFrame:
+    """
+    Fetch the batch of transactions from Google Sheets.
+
+    Args:
+        conf (dict): The dict containing the configurating data and authentications.
+
+    Returns:
+        pd.DataFrame: Contains the transactions, if no transactions were extracted, it returns an empty DataFrame.
+    """
 
     try:
         gc = gspread.service_account(filename=conf["json_file_path"])
@@ -75,6 +90,16 @@ def get_googlesheet_transactions(conf: dict) -> pd.DataFrame:
 
 
 def transactions_to_gbq(transactions: pd.DataFrame, conf: dict) -> bool:
+    """
+    Load the transactions into Google BigQuery.
+
+    Args:
+        transactions (pd.DataFrame):  Contains the transactions that need to be loaded.
+        conf (dict): The dict containing the configurating data and authentications.
+
+    Returns:
+        bool: True if the load was successful, False if the DataFrame was empty or the load failed.
+    """
 
     if transactions.empty:
         logger.info("Couldn't load transactions, transactions were empty.")
@@ -103,13 +128,21 @@ def transactions_to_gbq(transactions: pd.DataFrame, conf: dict) -> bool:
 
 
 def clean_google_sheets(switch: bool, conf: dict) -> None:
+    """
+    Cleans the Google Sheet from the loaded transactions.
 
-    if switch == True:
+    Args:
+        switch (bool): True if the transactions were loaded correctly and the deleting can commence or False if the deleting should be aborted.
+        conf (dict): The dict containing the configurating data and authentications.
+    """
+
+    if switch:
         try:
             gc = gspread.service_account(filename=conf["json_file_path"])
             sh = gc.open("portfolio_transactions")
             worksheet = sh.worksheet("Transactions")
 
+            # Assumes a batch of transactions contains 999 transactions max with 5 columns each.
             worksheet.batch_clear(["A2:E1000"])
 
         except:
@@ -125,8 +158,18 @@ def clean_google_sheets(switch: bool, conf: dict) -> None:
 
 
 def gbq_get_tickers(conf: dict) -> list:
+    """
+    Fetch all the currently active tickers from the transactions table.
+
+    Args:
+        conf (dict): The dict containing the configurating data and authentications.
+
+    Returns:
+        list: Containing the currently active unique tickers.
+    """
 
     try:
+        # Filter out closed positions for API ooptimization.
         sql = f"""
         WITH ticker_total AS
         (
@@ -150,17 +193,26 @@ def gbq_get_tickers(conf: dict) -> list:
         tickers = df_tickers["Ticker"].to_list()
 
     except:
-        logger.exception("Couldn't fetch the actove tickers from Google BigQuery.")
+        logger.exception("Couldn't fetch the active tickers from Google BigQuery.")
 
         raise
 
     else:
-        logger.info("Currently active tickers fetched succesfully.")
+        logger.info("Currently active tickers fetched successfully.")
 
         return tickers
 
 
 def gbq_get_all_tickers(conf: dict) -> list:
+    """
+    Fetch all the tickers which were in the transactions list at any point in time.
+
+    Args:
+        conf (dict): The dict containing the configurating data and authentications.
+
+    Returns:
+        list: Containing all the unique tickers.
+    """
 
     try:
         sql = f"""
@@ -188,8 +240,19 @@ def gbq_get_all_tickers(conf: dict) -> list:
 
 
 def gbq_get_currencies(conf: dict) -> list:
+    """
+    Fetch all the active currency codes in the transactions table.
+
+    Args:
+        conf (dict): The dict containing the configurating data and authentications.
+
+    Returns:
+        list: Containing the currently active unique currencies.
+    """
 
     try:
+        # Filter out closed positions for API optimization.
+        # Exclude EUR currency because it is the base currency of the portfolio.
         sql = f"""
         WITH ticker_total AS
         (
@@ -226,9 +289,20 @@ def gbq_get_currencies(conf: dict) -> list:
 
 
 def api_get_asset_metadata(asset_tickers: list, conf: dict) -> pd.DataFrame:
+    """
+    Fetch the ticker metadata from the Tiingo API.
+
+    Args:
+        asset_tickers (list): Containing the tickers that we need metadata for.
+        conf (dict): The dict containing the configurating data and authentications.
+
+    Returns:
+        pd.DataFrame: Containing the ticker, the full name of the asset and the exchange code it is traded on.
+    """
 
     try:
         metadata_list = []
+        # Iterating because Tiingo only supports singular ticker requests.
         for ticker in asset_tickers:
 
             headers = {
@@ -237,7 +311,9 @@ def api_get_asset_metadata(asset_tickers: list, conf: dict) -> pd.DataFrame:
             }
 
             response = requests.get(
-                f"https://api.tiingo.com/tiingo/daily/{ticker}", headers=headers
+                f"https://api.tiingo.com/tiingo/daily/{ticker}",
+                headers=headers,
+                timeout=10,
             )
 
             r = response.json()
@@ -251,20 +327,31 @@ def api_get_asset_metadata(asset_tickers: list, conf: dict) -> pd.DataFrame:
         df_metadata = pd.DataFrame(metadata_list)
 
     except:
-        logger.exception("Couldn't fetch API asset metadata infos.")
+        logger.exception("Couldn't fetch API asset metadata.")
 
         raise
 
     else:
-        logger.info("API asset metadata infos fetched successfully.")
+        logger.info("API asset metadata fetched successfully.")
 
         return df_metadata
 
 
 def api_get_asset_price(asset_tickers: list, conf: dict) -> pd.DataFrame:
+    """
+    Fetch the ticker prices from the Tiingo API.
+
+    Args:
+        asset_tickers (list): Containing the tickers that we need prices for.
+        conf (dict): The dict containing the configurating data and authentications.
+
+    Returns:
+        pd.DataFrame: Containing the date of the price, the ticker and the price for that ticker.
+    """
 
     try:
         price_list = []
+        # Iterating because Tiingo only supports singular ticker requests.
         for ticker in asset_tickers:
 
             headers = {
@@ -273,7 +360,9 @@ def api_get_asset_price(asset_tickers: list, conf: dict) -> pd.DataFrame:
             }
 
             response = requests.get(
-                f"https://api.tiingo.com/tiingo/daily/{ticker}/prices", headers=headers
+                f"https://api.tiingo.com/tiingo/daily/{ticker}/prices",
+                headers=headers,
+                timeout=10,
             )
 
             r = response.json()
@@ -298,12 +387,22 @@ def api_get_asset_price(asset_tickers: list, conf: dict) -> pd.DataFrame:
 
 
 def api_get_currency_rate(currency_list: list) -> pd.DataFrame:
+    """
+    Fetch the currency rates from the Frankfurter API.
+
+    Args:
+        currency_list (list): Containing the currencies that we need the rates for with EUR base.
+
+    Returns:
+        pd.DataFrame: Containing the date of the exchange rate, the currency code and the rate for that currency with EUR base.
+    """
 
     try:
+        # The Frankfurter API supports bulk requests, we dont need to iterate.
         currency_list = ",".join(currency_list)
 
         response = requests.get(
-            f"https://api.frankfurter.dev/v2/rates?quotes={currency_list}"
+            f"https://api.frankfurter.dev/v2/rates?quotes={currency_list}", timeout=10
         )
         r = response.json()
 
@@ -329,28 +428,42 @@ def api_get_currency_rate(currency_list: list) -> pd.DataFrame:
         return df_currencies
 
 
-def asset_metadatas_to_gbq(names: pd.DataFrame, conf: dict) -> None:
+def asset_metadata_to_gbq(metadata: pd.DataFrame, conf: dict) -> None:
+    """
+    Load asset metadata table into Google BigQuery.
+
+    Args:
+        metadata (pd.DataFrame): Containing the asset metadata.
+        conf (dict): The dict containing the configurating data and authentications.
+    """
 
     try:
         table = conf["dataset"] + "." + "raw_asset_metadatas"
         pandas_gbq.to_gbq(
-            names,
+            metadata,
             table,
             project_id=conf["project"],
-            if_exists="replace",
+            if_exists="replace",  # Using replace so the table keeps its dimension table attribute
             credentials=conf["credentials"],
         )
 
     except:
-        logger.exception("Couldn't load asset metadata infos into Google BigQuery.")
+        logger.exception("Couldn't load asset metadata into Google BigQuery.")
 
         raise
 
     else:
-        logger.info("Asset metadata infos loaded into Google BigQuery successfully.")
+        logger.info("Asset metadata loaded into Google BigQuery successfully.")
 
 
 def asset_prices_to_gbq(prices: pd.DataFrame, conf: dict) -> None:
+    """
+    Load asset prices table into Google BigQuery.
+
+    Args:
+        prices (pd.DataFrame): Containing the asset prices.
+        conf (dict): The dict containing the configurating data and authentications.
+    """
 
     try:
         table = conf["dataset"] + "." + "raw_asset_prices"
@@ -358,7 +471,7 @@ def asset_prices_to_gbq(prices: pd.DataFrame, conf: dict) -> None:
             prices,
             table,
             project_id=conf["project"],
-            if_exists="append",
+            if_exists="append",  # Using append so the table keeps the historcial prices.
             credentials=conf["credentials"],
         )
 
@@ -372,6 +485,13 @@ def asset_prices_to_gbq(prices: pd.DataFrame, conf: dict) -> None:
 
 
 def currency_rates_to_gbq(currencies: pd.DataFrame, conf: dict) -> None:
+    """
+    Load currency rates on EUR base table into Google BigQuery.
+
+    Args:
+        currencies (pd.DataFrame): Containing the currency exchange rates on EUR base.
+        conf (dict): The dict containing the configurating data and authentications.
+    """
 
     try:
         table = conf["dataset"] + "." + "raw_currency_exchange_price"
@@ -379,7 +499,7 @@ def currency_rates_to_gbq(currencies: pd.DataFrame, conf: dict) -> None:
             currencies,
             table,
             project_id=conf["project"],
-            if_exists="append",
+            if_exists="append",  # Using append so the table keeps the historcial prices.
             credentials=conf["credentials"],
         )
 
@@ -404,7 +524,7 @@ def main() -> None:
     asset_metadatas = api_get_asset_metadata(all_tickers, conf)
     asset_prices = api_get_asset_price(tickers, conf)
     currency_rates = api_get_currency_rate(currencies)
-    asset_metadatas_to_gbq(asset_metadatas, conf)
+    asset_metadata_to_gbq(asset_metadatas, conf)
     asset_prices_to_gbq(asset_prices, conf)
     currency_rates_to_gbq(currency_rates, conf)
 
