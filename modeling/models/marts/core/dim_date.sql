@@ -9,7 +9,7 @@ WITH date_spine AS
     }}
 ),
 
-alldates AS
+min_dates AS
 (
     SELECT
         min(date) as partial_min
@@ -33,7 +33,7 @@ date_limits AS
         MIN(partial_min) AS min_date,
         current_date() as max_date
     FROM 
-        alldates
+        min_dates
 ),
 
 limited_dates AS

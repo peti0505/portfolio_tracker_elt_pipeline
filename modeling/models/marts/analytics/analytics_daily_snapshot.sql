@@ -41,6 +41,7 @@ ticker_datas AS
         ticker_id,
         currency_code,
         asset_price,
+        --The daily sums can't be null, if it is 0 it should still be kept in record.
         COALESCE(daily_amount, 0) AS daily_amount,
         COALESCE(daily_cost, 0) AS daily_cost,
         COALESCE(daily_cost_base, 0) AS daily_cost_base
@@ -55,6 +56,7 @@ rolling_totals AS
     SELECT
         date_id,
         ticker_id,
+        --Rolling sum to see amount, price, base price and cost day by day. The yield gets calculated from this.
         SUM(daily_amount) OVER(PARTITION BY ticker_id ORDER BY date_id) AS cumulative_amount,
         COALESCE((SUM(daily_amount) OVER(PARTITION BY ticker_id ORDER BY date_id))*asset_price, 0) AS market_value,
         COALESCE((SUM(daily_amount) OVER(PARTITION BY ticker_id ORDER BY date_id))*asset_price/currency_rate, 0) AS market_value_base,
@@ -76,6 +78,7 @@ final AS
         market_value_base,
         cumulative_cost,
         cumulative_cost_base,
+        --Calculating the yield on the cost's currency rate to prepare FX yield and asset yield separation.
         COALESCE(market_value*SAFE_DIVIDE(cumulative_cost_base,cumulative_cost),0) AS market_value_on_cost_currency,
     FROM
         rolling_totals

@@ -41,6 +41,7 @@ final_prices AS
     SELECT 
         t.date_id,
         t.ticker_id,
+        --Forward filling, if a day doesn't have a price the last available price will be used.
         LAST_VALUE(asset_price IGNORE NULLS) 
         OVER(PARTITION BY t.ticker ORDER BY t.date_id ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) as asset_price
     FROM

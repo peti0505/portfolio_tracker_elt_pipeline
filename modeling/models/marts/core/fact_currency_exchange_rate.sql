@@ -39,6 +39,7 @@ final_rates AS
     SELECT
         ce.date_id,
         ce.currency_code,
+        --Forward filling, if a day doesn't have an exchange rate the last available rate will be used.
         LAST_VALUE(currency_rate IGNORE NULLS) 
         OVER(PARTITION BY ce.currency_code ORDER BY ce.date_id ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) as currency_rate
     FROM
