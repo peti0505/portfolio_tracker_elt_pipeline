@@ -1,0 +1,23 @@
+services:
+  portfolio_extract_load:
+    image: portfolio_extract_load:latest
+    build:
+      context: .
+      dockerfile: extract_load/Dockerfile
+    env_file: .env
+    volumes:
+      - ./gcp_key.json:/extract_load/gcp_key.json
+      - ./python_logs:/extract_load/python_logs
+
+  portfolio_dbt_modeling:
+    image: portfolio_dbt_modeling:latest
+    build:
+      context: .
+      dockerfile: modeling/Dockerfile
+    env_file: .env
+    volumes:
+      - ./gcp_key.json:/modeling/gcp_key.json
+      - ./profiles.yml:/root/.dbt/profiles.yml
+    depends_on:
+      portfolio_extract_load:
+        condition: service_completed_successfully
