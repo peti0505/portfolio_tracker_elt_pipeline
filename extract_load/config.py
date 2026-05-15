@@ -12,6 +12,10 @@ file = logging.FileHandler("python_logs/data_extract_load.log")
 file.setFormatter(formatting)
 root_log.addHandler(file)
 
+console_log = logging.StreamHandler()
+console_log.setFormatter(formatting)
+root_log.addHandler(console_log)
+
 logger = logging.getLogger(__name__)
 
 
