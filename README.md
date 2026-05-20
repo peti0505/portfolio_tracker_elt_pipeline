@@ -22,7 +22,7 @@ Tracking an investment portfolio manually without insights can be troublesome an
 
 ## Data Model
 
-(db star schema img)
+<img width="720" height="405" alt="investment_portfolio" src="https://github.com/user-attachments/assets/b6768d79-8544-4795-af10-3ae85741119c" />
 
 This Star Schema is the gold level of the **Medallion Structure**. It gets build from the staging tables which is the silver level. The analytics layer is built from this core schema. <br>
 **For an interactive documentation on the modeling and lineage visit:** (dbt doc site link)
@@ -111,7 +111,7 @@ This Star Schema is the gold level of the **Medallion Structure**. It gets build
 
 ### Pipeline features
 1. **Data extraction** <br>
-The main.py starts the process. The new transactions from the **Google Sheets** get extracted and loaded into **BigQuery**. Only after that will the asset price and FX rate fetching begin. First it fetches the active asset tickers and currencies, only these prices will be fetched from the APIs for **optimization**.
+The main.py starts the process. The new transactions from the **Google Sheets** get extracted and loaded into **BigQuery**. Only after that will the asset price and FX rate fetching begin. First it fetches the active asset tickers and currencies from BigQuery, only these prices will be fetched from the APIs for **optimization**.
 
 2. **Data Loading** <br>
 Every table get loaded into **Google BigQuery** as **raw tables** for future modeling.  If the transaction loading was successfu the Google Sheets transactions gets cleared  to maintain **idempotency**.
@@ -138,7 +138,7 @@ scheduled running.
 
 ## Visualization
 
-(visualization img)
+<img width="720" height="405" alt="portfolio_visualization" src="https://github.com/user-attachments/assets/1c376aaa-c317-4ef1-8e6d-9f065579d0ff" />
 
 # How to Run
 
