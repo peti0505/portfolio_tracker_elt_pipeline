@@ -8,7 +8,7 @@ Tracking an investment portfolio manually without insights can be troublesome an
 
 ## Architecture and Dataflow
 
-(workflow img)
+<img width="846" height="405" alt="portfolio_pipeline_dataflow (1)" src="https://github.com/user-attachments/assets/db4c2572-e167-4341-8837-796298a47098" />
 
 ## Tech Stack
 
@@ -28,9 +28,86 @@ This Star Schema is the gold level of the **Medallion Structure**. It gets build
 **For an interactive documentation on the modeling and lineage visit:** (dbt doc site link)
 
 ## Project Structure
-```hb
-(filetree)
+
+<details open>
+<summary><b>Click here to collapse the full project structure</b></summary>
+   
+```text
+│   .env.EXAMPLE 
+│   .gitignore
+│   docker-compose.yml
+│   gcp_key.EXAMPLE.json
+│   portoflio_visualization.pbix
+│   profiles.yml
+│   README.md
+│   
+├───airflow
+│   │   Dockerfile
+│   │   
+│   └───dags
+│           portfolio_dag.py
+│           
+├───docs
+│       catalog.json
+│       index.html
+│       manifest.json
+│       
+├───extract_load
+│       config.py
+│       Dockerfile
+│       extraction.py
+│       loading.py
+│       main.py
+│       requirements.txt
+│       
+└───modeling
+    │   .gitignore
+    │   dbt_project.yml
+    │   Dockerfile
+    │   package-lock.yml
+    │   packages.yml
+    │   
+    ├───.vscode
+    │       extensions.json
+    │       
+    ├───macros
+    │       generate_date_id.sql
+    │       
+    ├───models
+    │   ├───marts
+    │   │   ├───analytics
+    │   │   │       analytics_daily_snapshot.sql
+    │   │   │       _analytics.yml
+    │   │   │       
+    │   │   └───core
+    │   │           dim_assets.sql
+    │   │           dim_date.sql
+    │   │           fact_asset_prices.sql
+    │   │           fact_currency_exchange_rate.sql
+    │   │           fact_transactions.sql
+    │   │           _core_portfolio.yml
+    │   │           
+    │   └───staging
+    │           stg_asset_metadatas.sql
+    │           stg_asset_prices.sql
+    │           stg_currency_exchange_rate.sql
+    │           stg_transactions.sql
+    │           _src_raw_tables.yml
+    │           _stg_portfolio.yml
+    │           
+    └───tests
+        ├───marts
+        │   └───core
+        │           assert_dim_assets_uniqueness.sql
+        │           assert_fact_transactions_date_not_after_todays_date.sql
+        │           
+        └───staging
+                assert_stg_asset_prices_not_negative.sql
+                assert_stg_currency_rates_not_negative.sql
+                assert_stg_transactions_asset_amounts_not_negative.sql
+                assert_stg_transactions_trade_price_not_negative.sql
 ```
+</details>
 
 ### Pipeline features
 1. **Data extraction** <br>
@@ -75,7 +152,7 @@ scheduled running.
 1. **Clone the repository**
 ```bash
    git clone https://github.com/peti0505/portfolio_tracker_elt_pipeline.git
-   cd portfolio_tracking
+   cd portfolio_tracker_elt_pipeline
 ```
 
 2. **Configure environment variables** <br>
