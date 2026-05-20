@@ -4,7 +4,7 @@ Automated end-to-end ELT data pipeline for tracking an EUR based portfolio value
 ## Business problem
 Tracking an investment portfolio manually without insights can be troublesome and error-prone. This project wants to eliminate these problems by needing only the new asset transactions loaded into a Google Sheet, then using a **Modern Data Stack** extract, load and transform the data before visualizing it.
 
-**Explore the Interactive dbt Data Lineage and Documentation:**
+**Explore the interactive dbt Documentation and Data Lineage [CLICK HERE](https://peti0505.github.io/portfolio_tracker_elt_pipeline/)**
 
 ## Architecture and Dataflow
 
@@ -25,7 +25,7 @@ Tracking an investment portfolio manually without insights can be troublesome an
 <img width="720" height="405" alt="investment_portfolio" src="https://github.com/user-attachments/assets/b6768d79-8544-4795-af10-3ae85741119c" />
 
 This Star Schema is the gold level of the **Medallion Structure**. It gets build from the staging tables which is the silver level. The analytics layer is built from this core schema. <br>
-**For an interactive documentation on the modeling and lineage visit:** (dbt doc site link)
+**Explore the interactive dbt Documentation and Data Lineage [CLICK HERE](https://peti0505.github.io/portfolio_tracker_elt_pipeline/)**
 
 ## Project Structure
 
