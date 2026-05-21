@@ -138,7 +138,7 @@ scheduled running.
 
 ## Visualization
 
-<img width="720" height="405" alt="portfolio_visualization" src="https://github.com/user-attachments/assets/1c376aaa-c317-4ef1-8e6d-9f065579d0ff" />
+<img width="720" height="405" alt="portfolio_visualizationv2" src="https://github.com/user-attachments/assets/2e07e41b-f048-4e74-820c-a4fceadbe078" />
 
 # How to Run
 
@@ -161,11 +161,15 @@ Open the .envEXAMPLE file, write your environment variables according to the ins
 3. **Add GCP credentials** <br>
 Paste the Google Cloud Platform service key for the project into the gcp_keyEXAMPLE.json file or replace the file. Delete the .EXAMPLE from the file name.
 
-4. **Build the images**
+4. **Make Google Sheets for transactions** <br>
+Make a Google Sheet, name it "portfolio_transactions" and rename the worksheet to "Transactions" and share this sheet with your GCP service account e-mail. <br>
+Paste the transactions from example_transactions into the Google Sheet.
+
+6. **Build the images**
 ```bash
 docker compose --profile portfolio_pipeline build
 ```
-5. **Starting the pipeline** <br>
+6. **Starting the pipeline** <br>
 * If you want to start it with Airflow:
     - ```bash
         docker compose up -d
@@ -178,3 +182,6 @@ docker compose --profile portfolio_pipeline build
     - ```bash
         docker compose --profile portfolio_pipeline up
         ```
+7. Visualization <br>
+* You can explore the .pbix file in the repository with the original data.
+* If you want to refresh it with your own data connect your Google BigQuery.
