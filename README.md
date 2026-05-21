@@ -33,10 +33,11 @@ This Star Schema is the gold level of the **Medallion Structure**. It gets build
 <summary><b>Click here to collapse the full project structure</b></summary>
    
 ```text
-│   .env.EXAMPLE 
+│   .env.EXAMPLE
 │   .gitignore
 │   docker-compose.yml
 │   gcp_key.EXAMPLE.json
+│   portfolio_transactions.EXAMPLE.xlsx
 │   portoflio_visualization.pbix
 │   profiles.yml
 │   README.md
@@ -162,7 +163,7 @@ Open the .envEXAMPLE file, write your environment variables according to the ins
 Paste the Google Cloud Platform service key for the project into the gcp_keyEXAMPLE.json file or replace the file. Delete the .EXAMPLE from the file name.
 
 4. **Make Google Sheets for transactions** <br>
-Make a Google Sheet, name it "portfolio_transactions" and rename the worksheet to "Transactions" and share this sheet with your GCP service account e-mail. <br>
+Make a Google Sheet, name it "portfolio_transactions.EXAMPLE.xlsx" and rename the worksheet to "Transactions" and share this sheet with your GCP service account e-mail. <br>
 Paste the transactions from example_transactions into the Google Sheet.
 
 6. **Build the images**
