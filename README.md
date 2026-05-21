@@ -145,7 +145,7 @@ scheduled running.
 
 ### Prerequisites
 * **Docker** and **Docker Compose**.
-* A GCP project with a BigQuery dataset.
+* A GCP project with a BigQuery dataset and Google Sheets API and Google Drive API enabled.
 * A GCP Service account .json key with admin privileges.
 * API token for **Tiingo**
 * An empty Google Sheets spreadsheet.
