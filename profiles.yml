@@ -8,5 +8,5 @@ investment-portfolio-tracker:
       schema: "{{ env_var('dataset_name') }}"
       method: service-account
       keyfile: /modeling/gcp_key.json
-      location: EU
+      location: "{{ env_var('dataset_location', 'EU') }}"
       dataproc_batch: null

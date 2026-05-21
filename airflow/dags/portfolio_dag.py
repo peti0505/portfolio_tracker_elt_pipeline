@@ -45,6 +45,7 @@ with DAG(
         environment={
             "project_id": os.environ.get("project_id"),
             "dataset_name": os.environ.get("dataset_name"),
+            "dataset_location": os.environ.get("dataset_location"),
         },
         mounts=[
             Mount(
@@ -60,7 +61,7 @@ with DAG(
         ],
         auto_remove=True,
         retries=2,
-        retry_delay=timedelta(minutes=5)
+        retry_delay=timedelta(minutes=5),
     )
 
     extract_load >> dbt_modeling
