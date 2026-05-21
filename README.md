@@ -165,7 +165,7 @@ Paste the Google Cloud Platform service key for the project into the gcp_keyEXAM
 
 4. **Make Google Sheets for transactions** <br>
 * Rename your Google Sheets spreadsheet to "portfolio_transactions" and rename the worksheet to "Transactions" and share this sheet with your GCP service account e-mail.
-* Paste the transactions from transactions.EXAMPLE.xlsx into the worksheet or write your own transactions following the transactions.EXAMPLE.xlsx formatting(note: use tickers that are available in the Tiingo API).
+* Paste the transactions from portfolio_transactions.EXAMPLE.xlsx into the worksheet or write your own transactions following the portfolio_transactions.EXAMPLE.xlsx formatting(note: use tickers that are available in the Tiingo API).
 
 5. **Build the images**
 ```bash
