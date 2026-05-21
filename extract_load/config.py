@@ -31,7 +31,7 @@ def get_conf() -> dict:
         load_dotenv()
 
         conf = {
-            "tiingo_api_token": os.environ.get("tiingo_api_token"),
+            "tiingo_api_token": "Token " + os.environ.get("tiingo_api_token"),
             "json_file_path": os.environ.get("gc_service_account_json_path"),
             "credentials": service_account.Credentials.from_service_account_file(
                 os.environ.get("gc_service_account_json_path")
