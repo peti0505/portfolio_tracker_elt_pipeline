@@ -1,6 +1,6 @@
 FROM python:slim
 
-COPY ./* /extract_load/
+COPY . /extract_load/
 
 WORKDIR /extract_load
 
